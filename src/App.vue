@@ -5,4 +5,7 @@
   <main>
     <RouterView />
   </main>
+  <footer class="bg-green-400 p-5">
+
+  </footer>
 </template>

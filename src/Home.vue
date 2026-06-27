@@ -14,10 +14,26 @@ async function getBananas() {
   bananas.value = data
 }
 const getYoutubeId = (url) => {
-  if (!url) return ''
-  const parts = url.split("/")
-  const lastPart = parts[parts.length - 1] || ""
-  return lastPart.split("?")[0]
+    if (!url) return "";
+    
+    let url_proccess = "";
+
+  
+    if (url.includes("youtu.be")) {
+        url_proccess = url.split("/").at(-1).trim();
+    }
+   
+    else if (url.includes("short")) {
+        url_proccess = url.split("/").at(-1).trim();
+    }
+    else if (url.includes("youtube.com") && url.includes("v=")) {
+        url_proccess = url.split("v=")[1]?.split("&")[0].trim();
+    }
+    else {
+        url_proccess = url.split("/").at(-1).trim();
+    }
+	
+    return url_proccess;
 }
 onMounted(() => {
   getBananas()
@@ -30,8 +46,12 @@ onMounted(() => {
   <h1 class="text-2xl text-rose-400">all data</h1>
   <div class="flex gap-3 flex-wrap justify-center">
     <div v-for="(banana,idx) in bananas" :key="banana.id" class="bg-white px-2 py-3 rounded-2xl shadow-md shadow-green-300">
-        <div v-if="['yt-short'].includes(banana.type)">
+        <div v-if="['yt-short','yt-long'].includes(banana.type)">
             <Youtube :url="getYoutubeId(banana.url)"></Youtube>
+        </div>
+        <div v-if="['fb-post'].includes(banana.type)">
+            <!-- <Youtube :url="getYoutubeId(banana.url)"></Youtube> -->
+             <div v-html="banana.url"></div>
         </div>
     <div class="gap-3 flex flex-col">
          <h4>country :  {{ banana.banana_origin.name }}</h4>

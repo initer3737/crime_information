@@ -4,6 +4,7 @@ import { useRoute } from "vue-router";
 import { supabase } from "./lib/supabaseClient.ts";
 import Youtube from "./components/Youtube.vue";
 import Facebook from "./components/Facebook.vue";
+import { convertCompilerOptionsFromJson } from "typescript";
 
 const bananas = ref([]);
 const errorMessage = ref("");
@@ -33,14 +34,31 @@ async function getBananas() {
 	}
 
 	bananas.value = data ?? [];
+	// console.log({data:bananas.value})
 }
 
 const getYoutubeId = (url) => {
-	if (!url) return "";
-	const parts = url.split("/");
-	const lastPart = parts[parts.length - 1] || "";
-	return lastPart.split("?")[0];
-};
+    if (!url) return "";
+    
+    let url_proccess = "";
+
+  
+    if (url.includes("youtu.be")) {
+        url_proccess = url.split("/").at(-1).trim();
+    }
+   
+    else if (url.includes("short")) {
+        url_proccess = url.split("/").at(-1).trim();
+    }
+    else if (url.includes("youtube.com") && url.includes("v=")) {
+        url_proccess = url.split("v=")[1]?.split("&")[0].trim();
+    }
+    else {
+        url_proccess = url.split("/").at(-1).trim();
+    }
+
+    return url_proccess;
+}
 
 onMounted(() => {
 	getBananas();
@@ -51,7 +69,11 @@ onMounted(() => {
 	<div class="flex gap-3 flex-col justify-center px-3 py-4">
 		<h1 class="text-2xl text-rose-400">all data</h1>
 		<div class="mx-auto">
-			<RouterLink to="/" class="bg-green-400 px-2 py-4 m-4">back to Home</RouterLink>
+			<RouterLink
+				to="/"
+				class="bg-green-400 px-2 py-4 m-4"
+				>back to Home</RouterLink
+			>
 		</div>
 
 		<div v-if="errorMessage" class="text-red-500">
@@ -67,7 +89,7 @@ onMounted(() => {
 				<div
 					v-if="
 						[
-							'yt-short',
+							'yt-short','yt-long'
 						].includes(
 							banana.type,
 						)
@@ -76,13 +98,26 @@ onMounted(() => {
 					<Youtube
 						:url="
 							getYoutubeId(
-								banana.url,
+								banana.url
 							)
 						"
 					/>
 				</div>
-				<div v-else>
-					{{ banana }}
+				<div
+					v-else-if="
+						[
+							'fb-post',
+						].includes(
+							banana.type,
+						)
+					"
+					class="mt-4"
+				>
+					<div
+						v-html="
+							banana.url
+						"
+					></div>
 				</div>
 			</div>
 		</div>
